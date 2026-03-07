@@ -20,7 +20,7 @@ body {
 
 #container {
     width: 400px;
-    height: 600px;
+    height: 650px;
     margin-top: 40px;
     background-color: rgb(27, 32, 28);
     border-top-right-radius: 50% 1%;
@@ -40,6 +40,14 @@ body {
     background-color: #d9e6d9;
     margin-top: 70px;
     border-radius: 5px;
+
+    font-family:monospace;
+    font-size: 30px;
+
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    padding: 10px;
 }
 
 #buttons {
@@ -66,9 +74,23 @@ body {
     border-radius: 15px;
     color: white;
 
+    box-shadow: white 0 4px;
+
     display: flex;
     justify-content: center;
     align-items: center;
+
+    transition: transform .1s linear, box-shadow .1s linear, background-color .1s linear;
+}
+
+.button:hover {
+    cursor:pointer;
+}
+
+.button:active {
+    box-shadow: white 0 0;
+    transform: translate(0, 4px);
+
 }
 
 
