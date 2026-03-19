@@ -2,6 +2,7 @@ const buttonEqual = document.querySelector(".button-equal");
 const buttonClear = document.querySelector(".button-clear");
 const buttonBackspace = document.querySelector(".button-backspace");
 const buttonSign = document.querySelector(".button-sign");
+const buttonDecimal = document.querySelector(".button-decimal");
 
 const display = document.querySelector("#display");
 const operatorButtons = Array.from(document.querySelectorAll(".button-operator"));
@@ -31,16 +32,32 @@ function digitPress(e) {
     if (phase === "equalPressed") {
         operand1 = currentDigit;
         phase = "operand1";
-        display.textContent = operand1; 
-    } else if (phase === "operand1") {
-        operand1 = operand1*10 + currentDigit;
-        console.log(operand1);
-
         display.textContent = operand1;
+    } else if (phase === "operand1") {
+        // operand1 = operand1*10 + currentDigit;
+        // console.log(operand1);
+
+        // display.textContent = operand1;
+        if (display.textContent === "0") {
+            display.textContent = currentDigit;
+        } else {
+            display.textContent += currentDigit;
+        }
+        operand1 = parseFloat(display.textContent);
+    } else if (phase === "operand2") {
+        // phase = "operand2";
+        // operand2 = operand2*10 + currentDigit;
+
+        // display.textContent = operand2;
+        if (display.textContent === "0") {
+            display.textContent = currentDigit;
+        } else {
+            display.textContent += currentDigit;
+        }
+        operand2 = parseFloat(display.textContent);
     } else {
         phase = "operand2";
-        operand2 = operand2*10 + currentDigit;
-
+        operand2 = currentDigit;
         display.textContent = operand2;
     }
 }
@@ -139,6 +156,23 @@ function signPress() {
     }
 }
 
+function decimalPress(e) {
+    if (display.textContent.includes(".") && phase !== "operator") {
+        return
+    }
+
+    if (phase === "operand1" || phase === "operand2") {
+        display.textContent += ".";
+    } else if (phase === "operator") {
+        display.textContent = "0.";
+        phase = "operand2";
+    } else {
+        // equalPressed only?
+        display.textContent = "0.";
+        phase = "operand1";
+    }
+}
+
 // what
 for (b of digitButtons) {
     b.addEventListener("mousedown", digitPress);
@@ -153,6 +187,7 @@ buttonEqual.addEventListener("mousedown", equalPress);
 buttonBackspace.addEventListener("mousedown", backspacePress);
 buttonClear.addEventListener("mousedown", clearPress);
 buttonSign.addEventListener("mousedown", signPress);
+buttonDecimal.addEventListener("mousedown", decimalPress);
 
 
 
