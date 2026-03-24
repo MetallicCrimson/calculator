@@ -3,10 +3,14 @@ const buttonClear = document.querySelector(".button-clear");
 const buttonBackspace = document.querySelector(".button-backspace");
 const buttonSign = document.querySelector(".button-sign");
 const buttonDecimal = document.querySelector(".button-decimal");
+const buttonSqrt = document.querySelector(".button-sqrt");
 
 const display = document.querySelector("#display");
 const operatorButtons = Array.from(document.querySelectorAll(".button-operator"));
 const digitButtons = Array.from(document.querySelectorAll(".button-digit"));
+
+const MAX_DIGITS = 15;
+const GREATEST_NUM = 999999999999999;
 
 let operator = null, operand1 = 0, operand2 = 0, storedOperand1 = 0;
 
@@ -23,9 +27,81 @@ function colorOperator(newOperatorButton) {
         } 
 }
 
+function fitInput(newDigit) {
+    if (display.textContent === "0") {
+        tempAns = newDigit;
+    } else if (display.textContent === "-0") {
+        tempAns = "-" + newDigit;
+    } else {
+
+        tempAns = display.textContent + newDigit;
+        if (display.textContent[0] === "-") {
+            tempAns = tempAns.slice(1);
+        }
+        tempAnsNum = Number(tempAns);
+
+        if (tempAnsNum > GREATEST_NUM) {
+            tempAns = GREATEST_NUM;
+        } else if (tempAnsNum < -GREATEST_NUM) {
+            tempAns = -GREATEST_NUM;
+        } else if (tempAns.length > MAX_DIGITS) {
+            console.log("tempAns:", tempAns);
+            tempAns = tempAns.slice(0,MAX_DIGITS);
+        }
+
+        if (display.textContent[0] === "-") {
+            tempAns = "-" + tempAns;
+        }
+    }
+
+    display.textContent = tempAns;
+    return tempAns;
+}
+
+function roundToScreen(tempAnsNum) {
+    let temp_max_digits = (display.textContent[0] === "-") ? MAX_DIGITS+1 : MAX_DIGITS;
+
+    tempAns = String(tempAnsNum);
+    console.log("Length:", tempAns.length);
+
+    if (tempAns.indexOf("e") !== -1) {
+        tempAnsNum = 0;
+    } else if (tempAnsNum > GREATEST_NUM) {
+        tempAnsNum = GREATEST_NUM;
+    } else if (tempAnsNum < -GREATEST_NUM) {
+        tempAnsNum = -GREATEST_NUM;
+    } else if (tempAns.length > MAX_DIGITS) {
+        let dec_place = tempAns.indexOf(".");
+        console.log("Let the rounding begin. Decimal place:", temp_max_digits-dec_place);
+        console.log("Before everything:", tempAnsNum);
+        // Assume: decimal has to exist! If not, it would be
+        // greater or less than the limit already
+        
+        // Leroy Jeeenkiiiiiiiins
+        console.log("H", multiply(tempAnsNum, 10**(temp_max_digits-dec_place)));
+        tempAnsNum = multiply(tempAnsNum, 10**(temp_max_digits-dec_place));
+
+        console.log("Before rounding:", tempAnsNum);
+
+        tempAnsNum = Math.round(tempAnsNum);
+        console.log("After rounding:", tempAnsNum);
+        
+        tempAnsNum = divide(tempAnsNum, 10**(temp_max_digits-dec_place));
+
+
+
+    } else {
+        // nothing?
+    }
+
+    return Number(tempAnsNum);
+
+}
+
 
 function digitPress(e) {
-    console.log(phase);
+
+    console.log(phase, operator);
 
     let currentDigit = Number(e.target.textContent);
 
@@ -33,33 +109,32 @@ function digitPress(e) {
         operand1 = currentDigit;
         phase = "operand1";
         display.textContent = operand1;
+        operator = null;
     } else if (phase === "operand1") {
         // operand1 = operand1*10 + currentDigit;
         // console.log(operand1);
 
         // display.textContent = operand1;
-        if (display.textContent === "0") {
-            display.textContent = currentDigit;
-        } else {
-            display.textContent += currentDigit;
-        }
+        fitInput(currentDigit);
+
+        operator = null;
         operand1 = parseFloat(display.textContent);
+
     } else if (phase === "operand2") {
         // phase = "operand2";
         // operand2 = operand2*10 + currentDigit;
 
         // display.textContent = operand2;
-        if (display.textContent === "0") {
-            display.textContent = currentDigit;
-        } else {
-            display.textContent += currentDigit;
-        }
+        console.log("In operand2");
+        fitInput(currentDigit);
         operand2 = parseFloat(display.textContent);
-    } else {
+
+    } else if (phase === "operator") {
         phase = "operand2";
         operand2 = currentDigit;
         display.textContent = operand2;
     }
+
 }
 
 function operatorPress(e) {
@@ -74,6 +149,7 @@ function operatorPress(e) {
         colorOperator(e.target);
         
         let ans = operate(operator, operand1, operand2);
+        // ans = roundToScreen("");
         operand1 = ans;
         operand2 = 0;
         phase = "operator";
@@ -92,22 +168,29 @@ function equalPress(e) {
     console.log("Operator:", operator, operand1, operand2);
 
     if (phase === "operand1") {
-        operand1 = 0;
+        // operand1 = 0;
+        phase = "equalPressed";
         return;
     } else if (phase === "operator") {
         storedOperand1 = operand1;
         operand2 = operand1;
         operand1 = operate(operator, operand1, operand2);
-    } else if (phase === "equalPressed") {
-        operand2 = operand1;
-        operand1 = storedOperand1;
 
-        operand1 = operate(operator, operand2, operand1);
+        operand1 = roundToScreen(operand1);
+        display.textContent = operand1;
+
+    } else if (phase === "equalPressed" && operator) {
+        operand2 = operand1;
+        operand1 = operate(operator, operand2, storedOperand1);
+
+        operand1 = roundToScreen(operand1);
+        display.textContent = operand1;
     } else if (phase === "operand2") {
         storedOperand1 = operand2;
         console.log("Heyo");
 
         operand1 = operate(operator, operand1, operand2);
+        display.textContent = roundToScreen(operand1);
     }
     
     phase = "equalPressed";
@@ -117,20 +200,20 @@ function equalPress(e) {
 }
 
 function backspacePress(e) {
+    let tempDisplay = display.textContent.slice(0, -1);
+    if (tempDisplay === "-") tempDisplay = "-0";
+    else if (tempDisplay === "") tempDisplay = "0";
+
     if (phase === "operand1") {
-        operand1 = Math.floor(operand1 / 10);
-        display.textContent = operand1; 
+        display.textContent = tempDisplay;
+        operand1 = parseFloat(tempDisplay);
+
     } else if (phase === "operator") {
         colorOperator(null);
         phase = "operand1";
     } else if (phase === "operand2") {
-        if (operand2 === 0) {
-            phase = "operator";
-            display.textContent = operand1;
-        } else {
-            operand2 = Math.floor(operand2 / 10);
-            display.textContent = operand2;
-        }
+        display.textContent = tempDisplay;
+        operand2 = parseFloat(tempDisplay);
     } else {
         // only equalPressed...?
         clearPress();
@@ -147,21 +230,30 @@ function clearPress(e) {
 }
 
 function signPress() {
-    if (phase === "operand1" || phase === "operator") {
+    // could be dangerous! display and var possibly aren't equal...??
+
+    if (phase === "operand1" || phase === "operator" || phase === "equalPressed") {
         operand1 *= -1;
-        display.textContent = operand1;
     } else if (phase === "operand2") {
         operand2 *= -1;
-        display.textContent = operand2;
+    }
+
+    if (display.textContent[0] === "-") {
+        display.textContent = display.textContent.slice(1);
+    } else {
+        display.textContent = "-" + display.textContent;
     }
 }
 
 function decimalPress(e) {
-    if (display.textContent.includes(".") && phase !== "operator") {
+
+    console.log("Decimal!", phase);
+
+    if (display.textContent.includes(".") && phase !== "operator" && phase !== "equalPressed") {
         return
     }
 
-    if (phase === "operand1" || phase === "operand2") {
+    if ((phase === "operand1" || phase === "operand2") && display.textContent.length <= 15) {
         display.textContent += ".";
     } else if (phase === "operator") {
         display.textContent = "0.";
@@ -170,6 +262,19 @@ function decimalPress(e) {
         // equalPressed only?
         display.textContent = "0.";
         phase = "operand1";
+    }
+}
+
+function sqrtPress(e) {
+    if (phase === "operand1" || phase === "operator" || phase === "equalPressed") {
+        operand1 = Math.sqrt(operand1);
+
+        operand1 = roundToScreen(operand1);
+        operator = null;
+        colorOperator(null);
+
+        display.textContent = operand1;
+        phase = "equalPressed";
     }
 }
 
@@ -188,23 +293,73 @@ buttonBackspace.addEventListener("mousedown", backspacePress);
 buttonClear.addEventListener("mousedown", clearPress);
 buttonSign.addEventListener("mousedown", signPress);
 buttonDecimal.addEventListener("mousedown", decimalPress);
+buttonSqrt.addEventListener("mousedown", sqrtPress);
 
 
+// so .1 + .2 can equal .3
+function calculateWithDecimals(a,b,operation, operationText) {
+    let aStr = a.toString();
+    let bStr = b.toString();
+    let aSteps = !aStr.includes(".") ? 0 : aStr.split(".")[1].length;
+    let bSteps = !bStr.includes(".") ? 0 : bStr.split(".")[1].length;
+
+    let tempAns;
+
+    // console.log(aStr, bStr);
+    // console.log("Steps:", aSteps, bSteps);
+
+    if (operationText === "add" || operationText === "subtract") {
+        let maxSteps = Math.max(aSteps, bSteps);
+
+        a *= (10 ** maxSteps);
+        b *= (10 ** maxSteps);
+    
+        tempAns = operation(a,b);
+        console.log(tempAns, aSteps, bSteps);
+        tempAns /= (10 ** (maxSteps));
+    } else if (operationText === "multiply") {
+        console.log(aSteps, bSteps);
+        a *= (10 ** aSteps);
+        b *= (10 ** bSteps);
+        console.log("a,b:", a,b);
+
+        tempAns = operation(a,b);
+        console.log(tempAns);
+        tempAns /= (10 ** (aSteps + bSteps));
+        console.log(tempAns); 
+    } else {
+        console.log(aSteps, bSteps);
+        a *= (10 ** aSteps);
+        b *= (10 ** bSteps);
+        console.log("a,b:", a,b);
+
+        tempAns = operation(a,b);
+        console.log(tempAns);
+        tempAns /= (10 ** (aSteps - bSteps));
+        console.log(tempAns); 
+    }
+
+    // I would put it here, but it makes it an infinite loop
+    // tempAns = roundToScreen(tempAns);
+
+    display.textContent = tempAns;
+    return tempAns;
+}
 
 function add(a,b) {
-    return a+b;
+    return calculateWithDecimals(a,b, (a,b) => a+b, "add");
 }
 
 function subtract(a,b) {
-    return a-b;
+    return calculateWithDecimals(a,b, (a,b) => a-b, "subtract");
 }
 
 function multiply(a,b) {
-    return a*b;
+    return calculateWithDecimals(a,b, (a,b) => a*b, "multiply");
 }
 
 function divide(a,b) {
-    return a/b;
+    return calculateWithDecimals(a,b, (a,b) => a/b, "divide");
 }
 
 function operate(operator,a,b) {
@@ -228,7 +383,6 @@ function operate(operator,a,b) {
             break;
     }
 
-    display.textContent = ans;
     return ans;
 }
 
