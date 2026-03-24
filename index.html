@@ -9,9 +9,22 @@
 </head>
 <body>
     <div id="container">
-        <div id="ui-bar"></div>
+        <div id="ui-bar">
+            <div class="ui-button button-help">Help</div>
+            <div class="ui-button button-about">About</div>
+            <div class="ui-button button-expand">Expand</div>
+
+            <div class="ui-help ui-hidden"><div>
+                <h3>Calculator by MetallicCrimson</h2>
+                <p>This is help</p>    
+            </div></div>
+            <div class="ui-about ui-hidden"><div>
+                <h3>Calculator by MetallicCrimson</h2>
+                <p>This is about</p>  
+            </div></div>
+        </div>
         <div id="display">0</div>
-        <div id="buttons">
+        <div class="buttons" id="buttons-basic">
             <div class="row">
                 <div class="button button-clear">C</div>
                 <div class="button button-backspace">🠔</div>
@@ -42,6 +55,19 @@
                 <div class="button button-equal">=</div>
                 <div class="button button-operator">+</div>
             </div>
+        </div>
+        <div class="buttons ui-hidden" id="buttons-expanded">
+            <div class="top-row">
+                <div class="button button-clear">C</div>
+                <div class="button button-backspace">🠔</div>
+                <div class="button button-sign">±</div>
+                <div class="button button-operator">+</div>
+                <div class="button button-operator">-</div>
+                <div class="button button-operator">*</div>
+                <div class="button button-operator">/</div>
+                <div class="button button-equal">=</div>
+            </div>
+            <div class="digit-row"></div>
         </div>
     </div>
 

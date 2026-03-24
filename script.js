@@ -5,6 +5,16 @@ const buttonSign = document.querySelector(".button-sign");
 const buttonDecimal = document.querySelector(".button-decimal");
 const buttonSqrt = document.querySelector(".button-sqrt");
 
+const buttonHelp = document.querySelector(".button-help");
+const buttonAbout = document.querySelector(".button-about");
+const buttonExpand = document.querySelector(".button-expand");
+const uiHelp = document.querySelector(".ui-help");
+const uiAbout = document.querySelector(".ui-about");
+
+const buttonsBasic = document.querySelector("#buttons-basic");
+const buttonsExpanded = document.querySelector("#buttons-expanded");
+const digitRow = document.querySelector(".digit-row");
+
 const display = document.querySelector("#display");
 const operatorButtons = Array.from(document.querySelectorAll(".button-operator"));
 const digitButtons = Array.from(document.querySelectorAll(".button-digit"));
@@ -315,6 +325,29 @@ function sqrtPress(e) {
     }
 }
 
+function expandPress(e) {
+    if (!Array.from(uiAbout.classList).includes("ui-hidden") ||
+        !Array.from(uiHelp.classList).includes("ui-hidden")) {
+        return
+    }
+
+    buttonsBasic.classList.toggle("ui-hidden");
+    buttonsExpanded.classList.toggle("ui-hidden");
+
+    if (Array.from(buttonsExpanded.classList).includes("ui-hidden")) {
+        return;
+    }
+
+    for (let i = 0; i < 60; i++) {
+        let new_i = convert(i);
+
+        let tempButton = document.createElement("div");
+        tempButton.classList.add("button", "digit-button", `button-${new_i}`);
+        tempButton.textContent = new_i;
+        digitRow.appendChild(tempButton);
+    }
+}
+
 // what
 for (b of digitButtons) {
     b.addEventListener("mousedown", digitPress);
@@ -332,6 +365,15 @@ buttonSign.addEventListener("mousedown", signPress);
 buttonDecimal.addEventListener("mousedown", decimalPress);
 buttonSqrt.addEventListener("mousedown", sqrtPress);
 
+buttonHelp.addEventListener("mousedown", (e) => {
+    uiAbout.classList.add("ui-hidden");
+    uiHelp.classList.toggle("ui-hidden");
+});
+buttonAbout.addEventListener("mousedown", (e) => {
+    uiHelp.classList.add("ui-hidden");
+    uiAbout.classList.toggle("ui-hidden");
+});
+buttonExpand.addEventListener("mousedown", expandPress);
 
 // so .1 + .2 can equal .3
 function calculateWithDecimals(a,b,operation, operationText) {
@@ -429,3 +471,13 @@ function operate(operator,a,b) {
     return ans;
 }
 
+
+function convert(i) {
+    if (i < 10) {
+        return i;
+    } else if (i < 36) {
+        return String.fromCharCode(97+i-10);
+    } else {
+        return String.fromCharCode(65+i-36);
+    }
+}
