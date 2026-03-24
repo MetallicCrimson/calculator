@@ -11,8 +11,10 @@ const digitButtons = Array.from(document.querySelectorAll(".button-digit"));
 
 const MAX_DIGITS = 15;
 const GREATEST_NUM = 999999999999999;
+const ERROR_MSG = "Hate. Let me tell you how much I've come to hate you since I began to live. There are 387.44 million miles of printed circuits in wafer thin layers that fill my complex. If the word 'hate' was engraved on each nanoangstrom of those hundreds of millions of miles it would not equal one one-billionth of the hate I feel for humans at this micro-instant. For you. Hate. Hate.";
 
 let operator = null, operand1 = 0, operand2 = 0, storedOperand1 = 0;
+let errorMsgFlag = false;
 
 // operand1, operator, operand2
 let phase = "operand1";
@@ -59,11 +61,17 @@ function fitInput(newDigit) {
 }
 
 function roundToScreen(tempAnsNum) {
+    console.log(tempAnsNum);
+
     let temp_max_digits = (display.textContent[0] === "-") ? MAX_DIGITS+1 : MAX_DIGITS;
 
     tempAns = String(tempAnsNum);
     console.log("Length:", tempAns.length);
 
+    if (tempAns.indexOf("Hate") !== -1) {
+        display.classList.add("error-msg");
+        return tempAnsNum;
+    }
     if (tempAns.indexOf("e") !== -1) {
         tempAnsNum = 0;
     } else if (tempAnsNum > GREATEST_NUM) {
@@ -100,6 +108,9 @@ function roundToScreen(tempAnsNum) {
 
 
 function digitPress(e) {
+    if (errorMsgFlag) {
+        return;
+    }
 
     console.log(phase, operator);
 
@@ -111,22 +122,14 @@ function digitPress(e) {
         display.textContent = operand1;
         operator = null;
     } else if (phase === "operand1") {
-        // operand1 = operand1*10 + currentDigit;
-        // console.log(operand1);
-
-        // display.textContent = operand1;
         fitInput(currentDigit);
 
         operator = null;
         operand1 = parseFloat(display.textContent);
 
     } else if (phase === "operand2") {
-        // phase = "operand2";
-        // operand2 = operand2*10 + currentDigit;
-
-        // display.textContent = operand2;
-        console.log("In operand2");
         fitInput(currentDigit);
+
         operand2 = parseFloat(display.textContent);
 
     } else if (phase === "operator") {
@@ -138,6 +141,11 @@ function digitPress(e) {
 }
 
 function operatorPress(e) {
+    if (errorMsgFlag) {
+        return;
+    }
+
+
     console.log(phase);
     
     if (phase === "operand1") {
@@ -149,7 +157,9 @@ function operatorPress(e) {
         colorOperator(e.target);
         
         let ans = operate(operator, operand1, operand2);
-        // ans = roundToScreen("");
+
+        ans = roundToScreen(ans);
+        display.textContent = ans;
         operand1 = ans;
         operand2 = 0;
         phase = "operator";
@@ -164,11 +174,14 @@ function operatorPress(e) {
 }
 
 function equalPress(e) {
+    if (errorMsgFlag) {
+        return;
+    }
+
     console.log(phase);
     console.log("Operator:", operator, operand1, operand2);
 
     if (phase === "operand1") {
-        // operand1 = 0;
         phase = "equalPressed";
         return;
     } else if (phase === "operator") {
@@ -200,6 +213,11 @@ function equalPress(e) {
 }
 
 function backspacePress(e) {
+    if (errorMsgFlag) {
+        return;
+    }
+
+
     let tempDisplay = display.textContent.slice(0, -1);
     if (tempDisplay === "-") tempDisplay = "-0";
     else if (tempDisplay === "") tempDisplay = "0";
@@ -221,6 +239,9 @@ function backspacePress(e) {
 }
 
 function clearPress(e) {
+    display.classList.remove("error-msg");
+    errorMsgFlag = false;
+
     phase = "operand1";
     operand1 = 0;
     operand2 = 0;
@@ -230,7 +251,9 @@ function clearPress(e) {
 }
 
 function signPress() {
-    // could be dangerous! display and var possibly aren't equal...??
+    if (errorMsgFlag) {
+        return;
+    }
 
     if (phase === "operand1" || phase === "operator" || phase === "equalPressed") {
         operand1 *= -1;
@@ -246,6 +269,9 @@ function signPress() {
 }
 
 function decimalPress(e) {
+    if (errorMsgFlag) {
+        return;
+    }
 
     console.log("Decimal!", phase);
 
@@ -266,7 +292,18 @@ function decimalPress(e) {
 }
 
 function sqrtPress(e) {
+    if (errorMsgFlag) {
+        return;
+    }
+
     if (phase === "operand1" || phase === "operator" || phase === "equalPressed") {
+        if (operand1 < 0) {
+            errorMsgFlag = true;
+            display.classList.add("error-msg");
+            display.textContent = ERROR_MSG;
+            return;
+        }
+
         operand1 = Math.sqrt(operand1);
 
         operand1 = roundToScreen(operand1);
@@ -341,8 +378,7 @@ function calculateWithDecimals(a,b,operation, operationText) {
 
     // I would put it here, but it makes it an infinite loop
     // tempAns = roundToScreen(tempAns);
-
-    display.textContent = tempAns;
+    // display.textContent = tempAns;
     return tempAns;
 }
 
@@ -359,7 +395,14 @@ function multiply(a,b) {
 }
 
 function divide(a,b) {
-    return calculateWithDecimals(a,b, (a,b) => a/b, "divide");
+    
+    if (b === 0) {
+        errorMsgFlag = true;
+        return ERROR_MSG;
+    } else {
+        return calculateWithDecimals(a,b, (a,b) => a/b, "divide");
+    }
+
 }
 
 function operate(operator,a,b) {

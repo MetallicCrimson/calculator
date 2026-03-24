@@ -48,6 +48,12 @@ body {
     justify-content: flex-end;
     align-items: center;
     padding: 10px;
+
+    line-height: 8px;
+}
+
+#display.error-msg {
+    font-size: 8px;
 }
 
 #buttons {
