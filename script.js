@@ -333,18 +333,10 @@ function expandPress(e) {
 
     buttonsBasic.classList.toggle("ui-hidden");
     buttonsExpanded.classList.toggle("ui-hidden");
+    buttonExpand.classList.toggle("expanded");
 
     if (Array.from(buttonsExpanded.classList).includes("ui-hidden")) {
         return;
-    }
-
-    for (let i = 0; i < 60; i++) {
-        let new_i = convert(i);
-
-        let tempButton = document.createElement("div");
-        tempButton.classList.add("button", "digit-button", `button-${new_i}`);
-        tempButton.textContent = new_i;
-        digitRow.appendChild(tempButton);
     }
 }
 
@@ -375,6 +367,16 @@ buttonAbout.addEventListener("mousedown", (e) => {
 });
 buttonExpand.addEventListener("mousedown", expandPress);
 
+// come on
+for (let i = 0; i < 60; i++) {
+    let new_i = convert(i);
+
+    let tempButton = document.createElement("div");
+    tempButton.classList.add("button", "digit-button", `button-${new_i}`);
+    tempButton.textContent = new_i;
+    digitRow.appendChild(tempButton);
+}
+
 // so .1 + .2 can equal .3
 function calculateWithDecimals(a,b,operation, operationText) {
     let aStr = a.toString();
@@ -383,6 +385,7 @@ function calculateWithDecimals(a,b,operation, operationText) {
     let bSteps = !bStr.includes(".") ? 0 : bStr.split(".")[1].length;
 
     let tempAns;
+    let finalSteps;
 
     // console.log(aStr, bStr);
     // console.log("Steps:", aSteps, bSteps);
@@ -392,32 +395,19 @@ function calculateWithDecimals(a,b,operation, operationText) {
 
         a *= (10 ** maxSteps);
         b *= (10 ** maxSteps);
-    
-        tempAns = operation(a,b);
-        console.log(tempAns, aSteps, bSteps);
-        tempAns /= (10 ** (maxSteps));
+        finalSteps = maxSteps;
     } else if (operationText === "multiply") {
-        console.log(aSteps, bSteps);
         a *= (10 ** aSteps);
         b *= (10 ** bSteps);
-        console.log("a,b:", a,b);
-
-        tempAns = operation(a,b);
-        console.log(tempAns);
-        tempAns /= (10 ** (aSteps + bSteps));
-        console.log(tempAns); 
+        finalSteps = aSteps + bSteps;
     } else {
-        console.log(aSteps, bSteps);
         a *= (10 ** aSteps);
         b *= (10 ** bSteps);
-        console.log("a,b:", a,b);
-
-        tempAns = operation(a,b);
-        console.log(tempAns);
-        tempAns /= (10 ** (aSteps - bSteps));
-        console.log(tempAns); 
+        finalSteps = aSteps - bSteps;
     }
-
+    
+    tempAns = operation(a,b);
+    tempAns /= (10 ** (aSteps - bSteps));
     // I would put it here, but it makes it an infinite loop
     // tempAns = roundToScreen(tempAns);
     // display.textContent = tempAns;
