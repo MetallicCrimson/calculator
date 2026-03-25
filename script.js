@@ -5,6 +5,10 @@ const buttonSign = document.querySelector(".button-sign");
 const buttonDecimal = document.querySelector(".button-decimal");
 const buttonSqrt = document.querySelector(".button-sqrt");
 
+const buttonExpEqual = document.querySelector(".top-row > .button-equal");
+const buttonExpClear = document.querySelector(".top-row > .button-clear");
+const buttonExpBackspace = document.querySelector(".top-row > .button-backspace");
+
 const buttonHelp = document.querySelector(".button-help");
 const buttonAbout = document.querySelector(".button-about");
 const buttonExpand = document.querySelector(".button-expand");
@@ -118,6 +122,8 @@ function roundToScreen(tempAnsNum) {
 
 
 function digitPress(e) {
+    
+
     if (errorMsgFlag) {
         return;
     }
@@ -334,47 +340,12 @@ function expandPress(e) {
     buttonsBasic.classList.toggle("ui-hidden");
     buttonsExpanded.classList.toggle("ui-hidden");
     buttonExpand.classList.toggle("expanded");
+    clearPress();
 
     if (Array.from(buttonsExpanded.classList).includes("ui-hidden")) {
         return;
     }
-}
 
-// what
-for (b of digitButtons) {
-    b.addEventListener("mousedown", digitPress);
-}
-
-for (b of operatorButtons) {
-    b.addEventListener("mousedown", operatorPress);
-}
-
-
-buttonEqual.addEventListener("mousedown", equalPress);
-buttonBackspace.addEventListener("mousedown", backspacePress);
-buttonClear.addEventListener("mousedown", clearPress);
-buttonSign.addEventListener("mousedown", signPress);
-buttonDecimal.addEventListener("mousedown", decimalPress);
-buttonSqrt.addEventListener("mousedown", sqrtPress);
-
-buttonHelp.addEventListener("mousedown", (e) => {
-    uiAbout.classList.add("ui-hidden");
-    uiHelp.classList.toggle("ui-hidden");
-});
-buttonAbout.addEventListener("mousedown", (e) => {
-    uiHelp.classList.add("ui-hidden");
-    uiAbout.classList.toggle("ui-hidden");
-});
-buttonExpand.addEventListener("mousedown", expandPress);
-
-// come on
-for (let i = 0; i < 60; i++) {
-    let new_i = convert(i);
-
-    let tempButton = document.createElement("div");
-    tempButton.classList.add("button", "digit-button", `button-${new_i}`);
-    tempButton.textContent = new_i;
-    digitRow.appendChild(tempButton);
 }
 
 // so .1 + .2 can equal .3
@@ -462,7 +433,7 @@ function operate(operator,a,b) {
 }
 
 
-function convert(i) {
+function decToExpanded(i) {
     if (i < 10) {
         return i;
     } else if (i < 36) {
@@ -471,3 +442,64 @@ function convert(i) {
         return String.fromCharCode(65+i-36);
     }
 }
+
+// Note: in ASCII, lowercase is greater than uppercase.
+// However, I decided to not care
+function expandedToDec(i) {
+    if (i >= "0" && i <= "9") {
+        return parseInt(i);
+    } else if (i <= "X") {
+        return i.charCodeAt() - 29;
+    } else {
+        return i.charCodeAt() - 87;
+    }
+}
+
+// what
+for (b of digitButtons) {
+    b.addEventListener("mousedown", digitPress);
+}
+
+for (b of operatorButtons) {
+    b.addEventListener("mousedown", operatorPress);
+}
+
+
+buttonEqual.addEventListener("mousedown", equalPress);
+buttonBackspace.addEventListener("mousedown", backspacePress);
+buttonClear.addEventListener("mousedown", clearPress);
+buttonSign.addEventListener("mousedown", signPress);
+buttonDecimal.addEventListener("mousedown", decimalPress);
+buttonSqrt.addEventListener("mousedown", sqrtPress);
+
+buttonExpEqual.addEventListener("mouseDown", equalPress);
+buttonExpBackspace.addEventListener("mousedown", backspacePress);
+buttonExpClear.addEventListener("mousedown", clearPress);
+
+buttonHelp.addEventListener("mousedown", (e) => {
+    uiAbout.classList.add("ui-hidden");
+    uiHelp.classList.toggle("ui-hidden");
+});
+buttonAbout.addEventListener("mousedown", (e) => {
+    uiHelp.classList.add("ui-hidden");
+    uiAbout.classList.toggle("ui-hidden");
+});
+buttonExpand.addEventListener("mousedown", expandPress);
+
+// come on
+for (let i = 0; i < 60; i++) {
+    let new_i = decToExpanded(i);
+
+    let tempButton = document.createElement("div");
+    tempButton.classList.add("button", "digit-button", `button-${new_i}`);
+    tempButton.textContent = new_i;
+    digitRow.appendChild(tempButton);
+}
+
+const expandedButtons = document.querySelectorAll(".digit-row > .button");
+console.log(expandedButtons);
+
+for (b of expandedButtons) {
+    b.addEventListener("mousedown", digitPress);
+}
+
