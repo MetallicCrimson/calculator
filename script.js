@@ -14,6 +14,8 @@ const buttonAbout = document.querySelector(".button-about");
 const buttonExpand = document.querySelector(".button-expand");
 const uiHelp = document.querySelector(".ui-help");
 const uiAbout = document.querySelector(".ui-about");
+const uiBaseInput = document.querySelector(".base-input");
+const uiBaseInputDiv = document.querySelector(".base-input-div");
 
 const buttonsBasic = document.querySelector("#buttons-basic");
 const buttonsExpanded = document.querySelector("#buttons-expanded");
@@ -30,6 +32,9 @@ const ERROR_MSG = "Hate. Let me tell you how much I've come to hate you since I 
 let operator = null, operand1 = 0, operand2 = 0, storedOperand1 = 0;
 let errorMsgFlag = false;
 
+let expandedFlag = false;
+let base = 60;
+
 // operand1, operator, operand2
 let phase = "operand1";
 
@@ -44,10 +49,23 @@ function colorOperator(newOperatorButton) {
 }
 
 function fitInput(newDigit) {
+    let tempAns;
+
     if (display.textContent === "0") {
         tempAns = newDigit;
     } else if (display.textContent === "-0") {
         tempAns = "-" + newDigit;
+    } else if (expandedFlag) {
+        tempAns = display.textContent + newDigit;
+        console.log("tempans:", tempAns);
+
+        if (convertToDec(tempAns) > GREATEST_NUM) {
+            // tempAns = convertToExpanded(base-1).repeat(MAX_DIGITS);
+            tempAns = convertToExpanded(GREATEST_NUM);
+        } else if (tempAns.length > MAX_DIGITS) {
+            // this is only important for lower bases than decimal
+            tempAns = convertToExpanded(base-1).repeat(MAX_DIGITS);
+        }
     } else {
 
         tempAns = display.textContent + newDigit;
@@ -75,7 +93,26 @@ function fitInput(newDigit) {
 }
 
 function roundToScreen(tempAnsNum) {
-    console.log(tempAnsNum);
+    // If it's expanded, I don't have to care about any of this stuff.
+    // Also obviously the expanded version isn't a number, but I won't
+    // refactor it now
+
+    if (expandedFlag) {
+        if (errorMsgFlag) {
+            display.classList.add("error-msg");
+            return ERROR_MSG;
+        } else if (convertToDec(tempAnsNum) > GREATEST_NUM) {
+            // tempAns = convertToExpanded(base-1).repeat(MAX_DIGITS);
+            return convertToExpanded(GREATEST_NUM);
+        } else if (tempAnsNum.length > MAX_DIGITS) {
+            // this is only important for lower bases than decimal
+            return convertToExpanded(base-1).repeat(MAX_DIGITS);
+        } else if (tempAnsNum === "") {
+            return "0";
+        } else {
+            return tempAnsNum;
+        }
+    }
 
     let temp_max_digits = (display.textContent[0] === "-") ? MAX_DIGITS+1 : MAX_DIGITS;
 
@@ -122,7 +159,7 @@ function roundToScreen(tempAnsNum) {
 
 
 function digitPress(e) {
-    
+    console.log("operand1, operand2:", operand1, operand2);
 
     if (errorMsgFlag) {
         return;
@@ -130,28 +167,38 @@ function digitPress(e) {
 
     console.log(phase, operator);
 
-    let currentDigit = Number(e.target.textContent);
+    // let currentDigit = Number(e.target.textContent);
+    let currentDigit = e.target.textContent;
 
     if (phase === "equalPressed") {
-        operand1 = currentDigit;
+
+        operand1 = convertToDec(currentDigit);
         phase = "operand1";
-        display.textContent = operand1;
+        display.textContent = currentDigit;
         operator = null;
     } else if (phase === "operand1") {
         fitInput(currentDigit);
 
         operator = null;
-        operand1 = parseFloat(display.textContent);
+        if (expandedFlag) {
+            operand1 = convertToDec(display.textContent);
+        } else {
+            operand1 = parseFloat(display.textContent);
+        }
 
     } else if (phase === "operand2") {
         fitInput(currentDigit);
 
-        operand2 = parseFloat(display.textContent);
-
+        if (expandedFlag) {
+            operand2 = convertToDec(display.textContent);
+        } else {
+            operand2 = parseFloat(display.textContent);
+        }
     } else if (phase === "operator") {
         phase = "operand2";
-        operand2 = currentDigit;
-        display.textContent = operand2;
+        operand2 = convertToDec(currentDigit);
+
+        display.textContent = currentDigit;
     }
 
 }
@@ -173,10 +220,15 @@ function operatorPress(e) {
         colorOperator(e.target);
         
         let ans = operate(operator, operand1, operand2);
-
-        ans = roundToScreen(ans);
-        display.textContent = ans;
-        operand1 = ans;
+        console.log(ans);
+        // ans = roundToScreen(ans);
+        if (expandedFlag) {
+            display.textContent = roundToScreen(convertToExpanded(ans));
+            operand1 = convertToDec(display.textContent);
+        } else {
+            ans = roundToScreen(ans);
+            display.textContent = ans;
+        }
         operand2 = 0;
         phase = "operator";
         
@@ -205,8 +257,16 @@ function equalPress(e) {
         operand2 = operand1;
         operand1 = operate(operator, operand1, operand2);
 
-        operand1 = roundToScreen(operand1);
-        display.textContent = operand1;
+
+        // operand1 = roundToScreen(operand1);
+        // display.textContent = operand1;
+        if (expandedFlag) {
+            display.textContent = roundToScreen(convertToExpanded(operand1));
+            operand1 = convertToDec(display.textContent);
+        } else {
+            operand1 = roundToScreen(operand1);
+            display.textContent = operand1;
+        }
 
     } else if (phase === "equalPressed" && operator) {
         operand2 = operand1;
@@ -214,12 +274,24 @@ function equalPress(e) {
 
         operand1 = roundToScreen(operand1);
         display.textContent = operand1;
+
+        if (expandedFlag) {
+            display.textContent = roundToScreen(convertToExpanded(operand1));
+            operand1 = convertToDec(display.textContent);
+        }
     } else if (phase === "operand2") {
         storedOperand1 = operand2;
         console.log("Heyo");
 
         operand1 = operate(operator, operand1, operand2);
         display.textContent = roundToScreen(operand1);
+
+        if (expandedFlag) {
+            display.textContent = roundToScreen(convertToExpanded(operand1));
+            operand1 = convertToDec(display.textContent);
+        } else {
+            // ?
+        }
     }
     
     phase = "equalPressed";
@@ -337,8 +409,11 @@ function expandPress(e) {
         return
     }
 
+
+    expandedFlag = !expandedFlag;
     buttonsBasic.classList.toggle("ui-hidden");
     buttonsExpanded.classList.toggle("ui-hidden");
+    uiBaseInputDiv.classList.toggle("ui-hidden");
     buttonExpand.classList.toggle("expanded");
     clearPress();
 
@@ -401,7 +476,9 @@ function divide(a,b) {
     
     if (b === 0) {
         errorMsgFlag = true;
-        return ERROR_MSG;
+        return;
+    } else if (expandedFlag) {
+        return parseInt(a / b);
     } else {
         return calculateWithDecimals(a,b, (a,b) => a/b, "divide");
     }
@@ -433,7 +510,7 @@ function operate(operator,a,b) {
 }
 
 
-function decToExpanded(i) {
+function charToExpanded(i) {
     if (i < 10) {
         return i;
     } else if (i < 36) {
@@ -445,7 +522,7 @@ function decToExpanded(i) {
 
 // Note: in ASCII, lowercase is greater than uppercase.
 // However, I decided to not care
-function expandedToDec(i) {
+function charToDec(i) {
     if (i >= "0" && i <= "9") {
         return parseInt(i);
     } else if (i <= "X") {
@@ -453,6 +530,144 @@ function expandedToDec(i) {
     } else {
         return i.charCodeAt() - 87;
     }
+}
+
+function convertToDec(n) {
+    let ans = 0;
+
+    for (let i = 0; i < n.length; i++) {
+        let current_digit = n.at(-1-i);
+        ans += Number(charToDec(current_digit)) * (base ** i); 
+    }
+
+    return ans;
+}
+
+function convertToExpanded(n) {
+    // Can I assume it's a number?
+
+    tempAns = "";
+    let counter = 0;
+
+    while (n > 0) {
+        let new_digit = n % base;
+        n = parseInt(n / base);
+
+        tempAns = charToExpanded(new_digit) + tempAns;
+    }
+
+    return tempAns;
+
+}
+
+function baseChange(e) {
+    if (e.key !== "Enter") {
+        return;
+    }
+
+    newBase = parseInt(uiBaseInput.value);
+    console.log(newBase);
+
+    if (isNaN(newBase) || newBase < 2 || newBase > 60) {
+        return;
+    }
+
+    uiBaseInput.value = "";
+    uiBaseInput.blur();
+
+    for (let i = 0; i < newBase; i++) {
+        expandedButtons[i].style.display = "flex";
+    }
+
+    for (let i = newBase; i < 60; i++) {
+        expandedButtons[i].style.display = "none";
+    }
+
+    let tempNum = convertToDec(display.textContent);
+    base = newBase;
+    display.textContent = roundToScreen(convertToExpanded(tempNum));
+    // avoiding overflow issues
+    tempNum = convertToDec(display.textContent);
+
+    if (phase === "operand1") {
+        operand1 = tempNum;
+    } else if (phase === "operand2") {
+        operand2 = tempNum;
+    }
+}
+
+function windowKeypress(e) {
+    if (document.activeElement === uiBaseInput) {
+        return;
+    }
+    
+    currentInput = e.key;
+
+    if (checkAlnum(currentInput)) {
+        if ((!expandedFlag && checkNumeric(currentInput)) ||
+            (expandedFlag && checkBaseFit(currentInput))) {
+                digitPress({target: {textContent: currentInput}});
+        }
+    } else if (checkOperator(currentInput)) {
+        let tempOperatorButton;
+
+        switch (currentInput) {
+            case "+":
+                tempOperatorButton = expandedFlag ? 4 : 3;
+                break;
+            case "-":
+                tempOperatorButton = expandedFlag ? 5 : 2;
+                break;
+            case "*":
+                tempOperatorButton = expandedFlag ? 6 : 1;
+                break;
+            case "/":
+                tempOperatorButton = expandedFlag ? 7 : 0;
+                break;
+            default:
+                console.log("How even?");
+                break;
+        }
+
+        operatorPress({target: operatorButtons[tempOperatorButton]});
+    } else if (currentInput === ".") {
+        decimalPress();
+    } else if (currentInput === "=") {
+        equalPress();
+    } else if (currentInput === "Backspace") {
+        backspacePress();
+    } else if (currentInput === "Escape") {
+        clearPress();
+    } else if (currentInput === "Tab") {
+        e.preventDefault();
+        expandPress();
+    } else {
+        console.log(currentInput);
+    }
+}
+
+function checkAlnum(s) {
+    return s.length === 1 && s.match(/^[a-zA-X0-9]+$/i);
+}
+
+function checkNumeric(s) {
+    return s.match(/^[0-9]+$/i);
+}
+
+function checkLowercase(s) {
+    return s.match(/^[a-z]+$/i);
+}
+
+function checkUppercase(s) {
+    return s.match(/^[A-X]+$/i);
+}
+
+function checkBaseFit(s) {
+    return (base > charToDec(s));
+}
+
+function checkOperator(s) {
+    return s.match(/^[+\-*/]+$/i);
 }
 
 // what
@@ -472,9 +687,11 @@ buttonSign.addEventListener("mousedown", signPress);
 buttonDecimal.addEventListener("mousedown", decimalPress);
 buttonSqrt.addEventListener("mousedown", sqrtPress);
 
-buttonExpEqual.addEventListener("mouseDown", equalPress);
+buttonExpEqual.addEventListener("mousedown", equalPress);
 buttonExpBackspace.addEventListener("mousedown", backspacePress);
 buttonExpClear.addEventListener("mousedown", clearPress);
+uiBaseInput.addEventListener("keyup", baseChange);
+window.addEventListener("keydown", windowKeypress);
 
 buttonHelp.addEventListener("mousedown", (e) => {
     uiAbout.classList.add("ui-hidden");
@@ -488,7 +705,7 @@ buttonExpand.addEventListener("mousedown", expandPress);
 
 // come on
 for (let i = 0; i < 60; i++) {
-    let new_i = decToExpanded(i);
+    let new_i = charToExpanded(i);
 
     let tempButton = document.createElement("div");
     tempButton.classList.add("button", "digit-button", `button-${new_i}`);
