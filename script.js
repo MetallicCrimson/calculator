@@ -453,7 +453,7 @@ function calculateWithDecimals(a,b,operation, operationText) {
     }
     
     tempAns = operation(a,b);
-    tempAns /= (10 ** (aSteps - bSteps));
+    tempAns /= (10 ** (finalSteps));
     // I would put it here, but it makes it an infinite loop
     // tempAns = roundToScreen(tempAns);
     // display.textContent = tempAns;
@@ -598,6 +598,10 @@ function baseChange(e) {
 
 function windowKeypress(e) {
     if (document.activeElement === uiBaseInput) {
+        if (e.key === "Tab") {
+            e.preventDefault();
+            uiBaseInput.blur();
+        }
         return;
     }
     
@@ -638,11 +642,18 @@ function windowKeypress(e) {
         backspacePress();
     } else if (currentInput === "Escape") {
         clearPress();
+    } else if (currentInput === "Alt" && !expandedFlag) {
+        sqrtPress();
     } else if (currentInput === "Tab") {
         e.preventDefault();
-        expandPress();
+        
+        if (e.shiftKey) {
+            expandPress();
+        } else {
+            uiBaseInput.focus();
+        }
     } else {
-        console.log(currentInput);
+        console.log(e);
     }
 }
 
