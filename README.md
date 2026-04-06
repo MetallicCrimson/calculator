@@ -23,7 +23,7 @@ This is my submission for [the final assignment for the Foundations path of The 
 
 The basic calculator was fun (especially with the QoL features I implemented), but I wanted to do something extra with it; eventually, I made a base converter in which the user can choose the base between 2 and 60 inclusive, use copy-paste, and even do basic operations in any chosen base (albeit only with unsigned integers). I included both in this app, so the user can choose which one they need.
 
-In terms of active hours, it didn't take too long; however, there's two things called "life" and "work", which stretched it out to be almost a month. Still, I enjoyed the process; however, I think I'm quite ready for another adventure. There are other projects to overcomplicate.
+In terms of active hours, it didn't take too long; however, there are two things called "life" and "work", which stretched it out to be almost a month. Still, I enjoyed the process; however, I think I'm quite ready for another adventure. There are other projects to overcomplicate.
 
 ## Screenshots
 <img width="196" height="300" alt="image" src="https://github.com/user-attachments/assets/3fb17933-52b1-4897-ad8f-4d5bee623027" /> 

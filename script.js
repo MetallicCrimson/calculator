@@ -37,7 +37,7 @@ let errorMsgFlag = false;
 let expandedFlag = false;
 let base = 60;
 
-// operand1, operator, operand2
+// Valid phases: operand1, operator, operand2
 let phase = "operand1";
 
 function colorOperator(newOperatorButton) {
@@ -62,10 +62,9 @@ function fitInput(newDigit) {
         console.log("tempans:", tempAns);
 
         if (convertToDec(tempAns) > GREATEST_NUM) {
-            // tempAns = convertToExpanded(base-1).repeat(MAX_DIGITS);
             tempAns = convertToExpanded(GREATEST_NUM);
         } else if (tempAns.length > MAX_DIGITS) {
-            // this is only important for lower bases than decimal
+            // this is only important for bases lower than decimal
             tempAns = convertToExpanded(base-1).repeat(MAX_DIGITS);
         }
     } else {
@@ -74,7 +73,7 @@ function fitInput(newDigit) {
         if (display.textContent[0] === "-") {
             tempAns = tempAns.slice(1);
         }
-        tempAnsNum = Number(tempAns);
+        let tempAnsNum = Number(tempAns);
 
         if (tempAnsNum > GREATEST_NUM) {
             tempAns = GREATEST_NUM;
@@ -95,19 +94,15 @@ function fitInput(newDigit) {
 }
 
 function roundToScreen(tempAnsNum) {
-    // If it's expanded, I don't have to care about any of this stuff.
-    // Also obviously the expanded version isn't a number, but I won't
-    // refactor it now
+    // If it's expanded, I don't have to care about any of this stuff
 
     if (expandedFlag) {
         if (errorMsgFlag) {
             display.classList.add("error-msg");
             return ERROR_MSG;
         } else if (convertToDec(tempAnsNum) > GREATEST_NUM) {
-            // tempAns = convertToExpanded(base-1).repeat(MAX_DIGITS);
             return convertToExpanded(GREATEST_NUM);
         } else if (tempAnsNum.length > MAX_DIGITS) {
-            // this is only important for lower bases than decimal
             return convertToExpanded(base-1).repeat(MAX_DIGITS);
         } else if (tempAnsNum === "") {
             return "0";
@@ -121,9 +116,9 @@ function roundToScreen(tempAnsNum) {
     tempAns = String(tempAnsNum);
     console.log("Length:", tempAns.length);
 
-    if (tempAns.indexOf("Hate") !== -1) {
+    if (errorMsgFlag) {
         display.classList.add("error-msg");
-        return tempAnsNum;
+        return ERROR_MSG;
     }
     if (tempAns.indexOf("e") !== -1) {
         tempAnsNum = 0;
@@ -148,11 +143,6 @@ function roundToScreen(tempAnsNum) {
         console.log("After rounding:", tempAnsNum);
         
         tempAnsNum = divide(tempAnsNum, 10**(temp_max_digits-dec_place));
-
-
-
-    } else {
-        // nothing?
     }
 
     return Number(tempAnsNum);
@@ -169,7 +159,6 @@ function digitPress(e) {
 
     console.log(phase, operator);
 
-    // let currentDigit = Number(e.target.textContent);
     let currentDigit = e.target.textContent;
 
     if (phase === "equalPressed") {
@@ -209,7 +198,6 @@ function operatorPress(e) {
     if (errorMsgFlag) {
         return;
     }
-
 
     console.log(phase);
     
@@ -478,13 +466,13 @@ function divide(a,b) {
     
     if (b === 0) {
         errorMsgFlag = true;
+        display.classList.add("error-msg");
         return;
     } else if (expandedFlag) {
         return parseInt(a / b);
     } else {
         return calculateWithDecimals(a,b, (a,b) => a/b, "divide");
     }
-
 }
 
 function operate(operator,a,b) {
@@ -503,7 +491,6 @@ function operate(operator,a,b) {
         case "/":
             ans = divide(a,b);
             break;
-    
         default:
             break;
     }
@@ -546,8 +533,6 @@ function convertToDec(n) {
 }
 
 function convertToExpanded(n) {
-    // Can I assume it's a number?
-
     tempAns = "";
     let counter = 0;
 
@@ -612,7 +597,6 @@ function windowKeypress(e) {
     if (currentInput === "c" && e.ctrlKey && expandedFlag) {
 
         navigator.clipboard.writeText(display.textContent);
-        // some feedback...?
         giveCopiedFeedback();
         return;
     } else if (currentInput === "v" && e.ctrlKey && expandedFlag) {
@@ -690,6 +674,7 @@ function windowKeypress(e) {
     }
 }
 
+// what
 function checkAlnum(s) {
     return s.length === 1 && s.match(/^[a-zA-X0-9]+$/i);
 }
@@ -722,7 +707,6 @@ function giveCopiedFeedback() {
     }, 1);
 }
 
-// what
 for (b of digitButtons) {
     b.addEventListener("mousedown", digitPress);
 }
@@ -759,7 +743,6 @@ buttonAbout.addEventListener("mousedown", (e) => {
 });
 buttonExpand.addEventListener("mousedown", expandPress);
 
-// come on
 for (let i = 0; i < 60; i++) {
     let new_i = charToExpanded(i);
 

@@ -19,7 +19,6 @@ body {
 }
 
 #container {
-    /* width: 400px; */
     position: relative;
 
     height: 650px;
@@ -38,7 +37,6 @@ body {
 }
 
 #ui-bar {
-    /* border: 1px solid magenta; */
     position: relative;
     margin-top: 20px;
     height: 50px;
@@ -96,7 +94,6 @@ body {
     width: 360px;
     height: 50px;
     background-color: #d9e6d9;
-    /* margin-top: 70px; */
     border-radius: 5px;
 
     font-family: monospace;
