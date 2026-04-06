@@ -411,7 +411,7 @@ function expandPress(e) {
         return
     }
 
-
+    document.title = (document.title === "Calculator") ? "Converter" : "Calculator";
     expandedFlag = !expandedFlag;
     buttonsBasic.classList.toggle("ui-hidden");
     buttonsExpanded.classList.toggle("ui-hidden");
