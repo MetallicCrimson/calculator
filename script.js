@@ -25,6 +25,8 @@ const display = document.querySelector("#display");
 const operatorButtons = Array.from(document.querySelectorAll(".button-operator"));
 const digitButtons = Array.from(document.querySelectorAll(".button-digit"));
 
+const copiedFeedback = document.querySelector("#copied-feedback");
+
 const MAX_DIGITS = 15;
 const GREATEST_NUM = 999999999999999;
 const ERROR_MSG = "Hate. Let me tell you how much I've come to hate you since I began to live. There are 387.44 million miles of printed circuits in wafer thin layers that fill my complex. If the word 'hate' was engraved on each nanoangstrom of those hundreds of millions of miles it would not equal one one-billionth of the hate I feel for humans at this micro-instant. For you. Hate. Hate.";
@@ -611,10 +613,21 @@ function windowKeypress(e) {
 
         navigator.clipboard.writeText(display.textContent);
         // some feedback...?
+        giveCopiedFeedback();
         return;
     } else if (currentInput === "v" && e.ctrlKey && expandedFlag) {
-        navigator.clipboard.readText().then((clipText) => (display.textContent = clipText));
-        console.log("Paste");
+        let tempText;
+
+        navigator.clipboard.readText().then((clipText) => {
+            for (i in clipText) {
+                if (!checkAlnum(clipText[i]) || !checkBaseFit(clipText[i])) {
+                    return;
+                }
+            }
+            display.textContent = roundToScreen(clipText);
+            return;
+        });
+        
         return;
     }
 
@@ -699,6 +712,14 @@ function checkBaseFit(s) {
 
 function checkOperator(s) {
     return s.match(/^[+\-*/]+$/i);
+}
+
+function giveCopiedFeedback() {
+    copiedFeedback.style.animationName = "";
+
+    setTimeout(() => {
+        copiedFeedback.style.animationName = "copied-feedback";
+    }, 1);
 }
 
 // what

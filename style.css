@@ -20,6 +20,8 @@ body {
 
 #container {
     /* width: 400px; */
+    position: relative;
+
     height: 650px;
     margin-top: 40px;
     margin-bottom: 20px;
@@ -61,14 +63,22 @@ body {
     padding: 10px;
 }
 
-.help > div, .about > div {
-    width: 350px;
-    border: 3px solid red;
-    margin: auto;
-}
 
 .ui-hidden, #buttons-basic.ui-hidden, #buttons-expanded.ui-hidden {
     display: none;
+}
+
+#copied-feedback {
+    position: absolute;
+    top: 115px;
+    left: 140px;
+
+    color: yellow;
+    opacity: 0;
+    font-weight: bold;
+
+    animation-duration: .8s;
+    animation-timing-function: linear;
 }
 
 #display {
@@ -218,4 +228,10 @@ body {
     text-align: center;
     padding: 28px;
     align-self: stretch;
+}
+
+@keyframes copied-feedback {
+    0% {opacity: 100%;}
+
+    100% {opacity: 0;}
 }
