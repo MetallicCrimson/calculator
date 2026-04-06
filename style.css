@@ -63,6 +63,17 @@ body {
     padding: 10px;
 }
 
+.ui-help > div, .ui-about > div {
+    height: 100%;
+    overflow: auto;
+    font-size: 14px;
+    padding: 5px;
+    line-height: 1.4em;
+}
+
+.ui-help li, .ui-about li {
+    padding-top: 8px;
+}
 
 .ui-hidden, #buttons-basic.ui-hidden, #buttons-expanded.ui-hidden {
     display: none;
@@ -88,7 +99,7 @@ body {
     /* margin-top: 70px; */
     border-radius: 5px;
 
-    font-family:monospace;
+    font-family: monospace;
     font-size: 30px;
 
     display: flex;
@@ -219,6 +230,10 @@ body {
     color: white;
     font-weight: 500;
     padding-right: 10px;
+}
+
+a {
+    color: lightblue;
 }
 
 .footer {
