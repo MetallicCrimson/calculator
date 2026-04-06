@@ -600,12 +600,23 @@ function windowKeypress(e) {
     if (document.activeElement === uiBaseInput) {
         if (e.key === "Tab") {
             e.preventDefault();
-            uiBaseInput.blur();
+            baseChange({key: "Enter"});
         }
         return;
     }
     
     currentInput = e.key;
+
+    if (currentInput === "c" && e.ctrlKey && expandedFlag) {
+
+        navigator.clipboard.writeText(display.textContent);
+        // some feedback...?
+        return;
+    } else if (currentInput === "v" && e.ctrlKey && expandedFlag) {
+        navigator.clipboard.readText().then((clipText) => (display.textContent = clipText));
+        console.log("Paste");
+        return;
+    }
 
     if (checkAlnum(currentInput)) {
         if ((!expandedFlag && checkNumeric(currentInput)) ||
@@ -620,6 +631,13 @@ function windowKeypress(e) {
                 tempOperatorButton = expandedFlag ? 4 : 3;
                 break;
             case "-":
+                if (e.ctrlKey) {
+                    if (!expandedFlag) {
+                        signPress();
+                    }
+                    return;
+                }
+
                 tempOperatorButton = expandedFlag ? 5 : 2;
                 break;
             case "*":
@@ -636,7 +654,7 @@ function windowKeypress(e) {
         operatorPress({target: operatorButtons[tempOperatorButton]});
     } else if (currentInput === ".") {
         decimalPress();
-    } else if (currentInput === "=") {
+    } else if (currentInput === "=" || currentInput === "Enter") {
         equalPress();
     } else if (currentInput === "Backspace") {
         backspacePress();
@@ -644,12 +662,14 @@ function windowKeypress(e) {
         clearPress();
     } else if (currentInput === "Alt" && !expandedFlag) {
         sqrtPress();
+    } else if (currentInput === " " && !expandedFlag) {
+        signPress();
     } else if (currentInput === "Tab") {
         e.preventDefault();
         
         if (e.shiftKey) {
             expandPress();
-        } else {
+        } else if (expandedFlag) {
             uiBaseInput.focus();
         }
     } else {
@@ -688,6 +708,10 @@ for (b of digitButtons) {
 
 for (b of operatorButtons) {
     b.addEventListener("mousedown", operatorPress);
+}
+
+async function paste() {
+  return navigator.clipboard.readText();
 }
 
 
