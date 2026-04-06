@@ -8,7 +8,7 @@ Some extra features:
 - Keyboard support works everywhere (if it's a valid action). Digits, operators, and the decimal point are given (plus Enter is Equal); Backspace is, well, Backspace; Escape is Clear; Alt is sqrt; Space is sign change; Shift + Tab is Expand; Tab is entering or exiting Base input.
 - If you press multiple operators, it won't continue; it just saves the last operator pressed (and gives a visual feedback by coloring the active operator).
 - If you press Equal right after an operator, it uses the first operand for the second too.
-- If you press Equal multiple times, it repeats the last operation. (Easy way to find out the powers of 2.)
+- If you press Equal multiple times, it repeats the last operation. (Easy way to find the powers of 2.)
 - Backspace works for removing operators too.
 - There is a maximum (and minimum, as a negative) number: 999,999,999,999,999. It won't let you beyond that, even in expanded mode.
 - If a base change would make the number too large, it'll just convert it to the biggest possible number.
