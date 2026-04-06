@@ -218,6 +218,7 @@ function operatorPress(e) {
         } else {
             ans = roundToScreen(ans);
             display.textContent = ans;
+            operand1 = ans;
         }
         operand2 = 0;
         phase = "operator";
