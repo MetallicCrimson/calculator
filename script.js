@@ -585,6 +585,7 @@ function baseChange(e) {
 }
 
 function windowKeypress(e) {
+
     if (document.activeElement === uiBaseInput) {
         if (e.key === "Tab") {
             e.preventDefault();
@@ -642,6 +643,7 @@ function windowKeypress(e) {
                 tempOperatorButton = expandedFlag ? 6 : 1;
                 break;
             case "/":
+                e.preventDefault();
                 tempOperatorButton = expandedFlag ? 7 : 0;
                 break;
             default:

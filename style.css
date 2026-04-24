@@ -183,9 +183,6 @@ body {
     padding: 0 30px;
 }
 
-.top-row > .button-backspace {
-    margin-right: auto;
-}
 
 
 .button {
@@ -231,6 +228,12 @@ body {
 
 a {
     color: lightblue;
+}
+
+.button-backspace > span {
+    font-weight: bold;
+    font-size: 1.8em;
+    margin-top: -12px;
 }
 
 .footer {
